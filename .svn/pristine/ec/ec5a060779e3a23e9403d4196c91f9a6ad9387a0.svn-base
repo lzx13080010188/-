@@ -1,0 +1,33 @@
+# mysql database configure
+#jdbc.driverClassName=com.mysql.jdbc.Driver
+#jdbc.url=jdbc:mysql://localhost:3306/testdb?useUnicode=true&characterEncoding=utf8&autoReconnect=true
+#jdbc.username=root
+#jdbc.password=Metarnet123
+
+# database configure
+#jdbc.driverClassName=oracle.jdbc.driver.OracleDriver
+#jdbc.url=jdbc:oracle:thin:@192.168.207.1:1521:zhdw
+#jdbc.username=NETMAINTAINNEW
+#jdbc.password=NETMAINTAINNEW#123
+
+# jl database configure
+jdbc.driverClassName=oracle.jdbc.driver.OracleDriver
+jdbc.url=jdbc:oracle:thin:@127.0.0.1:1521:zhdw1
+jdbc.username=NETMAINTAINNEW
+jdbc.password=NETMAINTAINNEW#123
+
+# druid datasource
+druid.initialSize=2
+druid.minIdle=10
+druid.maxActive=30
+druid.maxWait=60000
+druid.timeBetweenEvictionRunsMillis=60000
+druid.minEvictableIdleTimeMillis=300000
+druid.validationQuery=SELECT 1 from dual
+druid.testWhileIdle=true
+druid.testOnBorrow=false
+druid.testOnReturn=false
+#oracle true  mysql false
+druid.poolPreparedStatements=true
+druid.maxPoolPreparedStatementPerConnectionSize=20
+druid.filters=wall,stat

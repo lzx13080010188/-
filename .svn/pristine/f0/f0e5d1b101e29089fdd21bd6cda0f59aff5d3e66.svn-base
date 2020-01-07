@@ -1,0 +1,687 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.inspur.unicomapp.dao.NmmpGisDao">
+    <resultMap type="NmmpResource" id="NmmpResourceResult">
+        <result property="resourceId" column="resourceId"/>
+        <result property="resourceName" column="resourceName"/>
+        <result property="resourceType" column="resourceType"/>
+        <result property="resourceTypeId" column="resourceTypeId"/>
+        <result property="resourceLat" column="resourceLat"/>
+        <result property="resourceLon" column="resourceLon"/>
+        <result property="maintainCompany" column="maintainCompany"/>
+        <result property="cityId" column="cityId"/>
+        <result property="cityName" column="cityName"/>
+        <result property="countyId" column="countyId"/>
+        <result property="countyName" column="countyName"/>
+    </resultMap>
+    
+    <resultMap type="ComboModel" id="ComboTree">
+     	<result property="id" column="id"/>
+        <result property="text" column="text"/>
+    </resultMap>
+
+	<resultMap type="NmmpPerson" id="NmmpPerson">
+		<result property="personId" column="personId"/>
+        <result property="personName" column="personName"/>
+        <result property="cityId" column="cityId"/>
+        <result property="cityName" column="cityName"/>
+        <result property="companyId" column="companyId"/>
+        <result property="companyName" column="companyName"/>
+        <result property="source" column="source"/>
+        <result property="executeTime" column="executeTime"/>
+        <result property="departMentId" column="departMentId"/>
+        <result property="departMentName" column="departMentName"/>
+	</resultMap>
+	
+	
+	<resultMap type="NmmpTask" id="NmmpTask">
+		<result property="taskId" column="taskId"/>
+        <result property="taskName" column="taskName"/>
+        <result property="taskType" column="taskType"/>
+        <result property="startTime" column="startTime"/>
+        <result property="endTime" column="endTime"/>
+        <result property="taskSource" column="taskSource"/>
+        <result property="cityId" column="cityId"/>
+        <result property="cityName" column="cityName"/>
+        <result property="companyId" column="companyId"/>
+        <result property="companyName" column="companyName"/>
+        <result property="pointId" column="pointId"/>
+        <result property="pointName" column="pointName"/>
+	</resultMap>
+	
+	<resultMap type="PlanID" id="PlanID">
+		<result property="planId" column="planId"/>
+	</resultMap>
+	
+	<resultMap type="TaskPoint" id="TaskPoint">
+		<result property="pointId" column="pointId"/>
+		<result property="pointName" column="pointName"/>
+		<result property="taskId" column="taskId"/>
+		<result property="pointLng" column="pointLng"/>
+		<result property="pointLat" column="pointLat"/>
+		<result property="exePersonId" column="exePersonId"/>
+		<result property="exePersonName" column="exePersonName"/>
+		<result property="exeStartTime" column="exeStartTime"/>
+		<result property="exeEndTime" column="exeEndTime"/>
+	</resultMap>
+
+    <select id="findAllNmmpResource" parameterType="Map" resultMap="NmmpResourceResult">
+    	SELECT rel.* FROM (
+	        SELECT 
+	        	 resourceId，resourceName，resourceType，
+			     resourceTypeId，resourceLat，resourceLon，
+			     maintainCompany，cityId，ct.zh_label as cityName,
+			     countyId,rc.zh_label as countyName,rownum rn
+	        FROM (
+		        <if test="resourceType!=null and resourceType!='' and resourceType=='jz'">
+		            select 
+		            	int_id as resourceId,zh_label as resourceName,
+		            	'基站' as resourceType,'1' as resourceTypeId,
+		            	site_latitude as resourceLat,site_longitude as resourceLon,
+		            	maintain_company as maintainCompany,city_id as cityId,
+		            	county_id as countyId 
+		            from CMUSER.RMS_BTS
+		        </if>
+		        <if test="resourceType!=null and resourceType!='' and resourceType=='sf'">
+		            select 
+		            	int_id as resourceId,zh_label as resourceName,
+		            	'室分' as resourceType,'2' as resourceTypeId,
+		            	latitude as resourceLat,longitude as resourceLon,
+		            	maintain_company as maintainCompany,city_id as cityId,
+		            	county_id as countyId 
+		            from CMUSER.RMS_INDOOR
+		        </if>
+		        <if test="resourceType!=null and resourceType!='' and resourceType=='zfz'">
+		            select 
+		            	int_id as resourceId,zh_label as resourceName,
+		            	'直放站' as resourceType,'3' as resourceTypeId,
+		            	sector_latitude as resourceLat,sector_longitude as resourceLon,
+		            	maintain_company as maintainCompany,city_id as cityId,
+		            	county_id as countyId 
+		            from CMUSER.RMS_REPEATER
+		        </if>
+		        <if test="resourceType!=null and resourceType!='' and resourceType=='rsj'">
+		            select 
+		            	int_id as resourceId,zh_label as resourceName,
+		            	'人手井' as resourceType,'4' as resourceTypeId,
+		            	latitude as resourceLat,longitude as resourceLon,
+		            	maintain_company as maintainCompany,city_id as cityId,
+		            	county_id as countyId 
+		            from CMUSER.RMS_RSJ
+		        </if>
+		        <if test="resourceType!=null and resourceType!='' and resourceType=='dg'">
+		            select 
+		            	int_id as resourceId,zh_label as resourceName,
+		            	'电杆' as resourceType,'5' as resourceTypeId,
+		            	latitude as resourceLat,longitude as resourceLon,
+		            	maintain_company as maintainCompany,city_id as cityId,
+		            	county_id as countyId 
+		            from CMUSER.RMS_POLE
+		        </if>
+		        <if test="resourceType!=null and resourceType!='' and resourceType=='bs'">
+		            select 
+		            	int_id as resourceId,zh_label as resourceName,
+		            	'标石' as resourceType,'6' as resourceTypeId,
+		            	latitude as resourceLat,longitude as resourceLon,
+		            	maintain_company as maintainCompany,city_id as cityId,
+		            	county_id as countyId 
+		            from CMUSER.RMS_LANDMARK
+		        </if>
+		        <if test="resourceType!=null and resourceType!='' and resourceType=='jf'">
+		            select 
+		            	int_id as resourceId,zh_label as resourceName,
+		            	'机房' as resourceType,'7' as resourceTypeId,
+		            	latitude as resourceLat,longitude as resourceLon,
+		            	maintain_company as maintainCompany,city_id as cityId,
+		            	county_id as countyId 
+		            from CMUSER.RMS_EQUIPROOM
+		        </if>
+	        ) res
+	        LEFT JOIN CMUSER.RMS_CITY ct on ct.city_id=res.cityId
+			LEFT JOIN CMUSER.RMS_COUNTY rc on rc.int_id=res.countyId
+			where 1=1
+			<if test="cityName!=null and cityName!='' ">
+	            and cityId =#{cityName}
+	        </if>
+	        <if test="resourceName!=null and resourceName!='' ">
+	            and resourceName like '%${resourceName}%'
+	        </if>
+        ) rel where rel.rn between #{start} and #{end}
+    </select>
+    
+    <select id="getTotalNmmpResource" parameterType="Map" resultType="Long">
+        SELECT COUNT(*) from (
+          SELECT 
+	        	 resourceId，resourceName，resourceType，
+			     resourceTypeId，resourceLat，resourceLon，
+			     maintainCompany，cityId， countyId
+	        FROM (
+	        	<if test="resourceType!=null and resourceType!='' and resourceType=='jz'">
+		            select 
+		            	int_id as resourceId,zh_label as resourceName,
+		            	'基站' as resourceType,'1' as resourceTypeId,
+		            	site_latitude as resourceLat,site_longitude as resourceLon,
+		            	maintain_company as maintainCompany,city_id as cityId,
+		            	county_id as countyId 
+		            from CMUSER.RMS_BTS
+		        </if>
+		        <if test="resourceType!=null and resourceType!='' and resourceType=='sf'">
+		            select 
+		            	int_id as resourceId,zh_label as resourceName,
+		            	'室分' as resourceType,'2' as resourceTypeId,
+		            	latitude as resourceLat,longitude as resourceLon,
+		            	maintain_company as maintainCompany,city_id as cityId,
+		            	county_id as countyId 
+		            from CMUSER.RMS_INDOOR
+		        </if>
+		        <if test="resourceType!=null and resourceType!='' and resourceType=='zfz'">
+		            select 
+		            	int_id as resourceId,zh_label as resourceName,
+		            	'直放站' as resourceType,'3' as resourceTypeId,
+		            	sector_latitude as resourceLat,sector_longitude as resourceLon,
+		            	maintain_company as maintainCompany,city_id as cityId,
+		            	county_id as countyId 
+		            from CMUSER.RMS_REPEATER
+		        </if>
+		        <if test="resourceType!=null and resourceType!='' and resourceType=='rsj'">
+		            select 
+		            	int_id as resourceId,zh_label as resourceName,
+		            	'人手井' as resourceType,'4' as resourceTypeId,
+		            	latitude as resourceLat,longitude as resourceLon,
+		            	maintain_company as maintainCompany,city_id as cityId,
+		            	county_id as countyId 
+		            from CMUSER.RMS_RSJ
+		        </if>
+		        <if test="resourceType!=null and resourceType!='' and resourceType=='dg'">
+		            select 
+		            	int_id as resourceId,zh_label as resourceName,
+		            	'电杆' as resourceType,'5' as resourceTypeId,
+		            	latitude as resourceLat,longitude as resourceLon,
+		            	maintain_company as maintainCompany,city_id as cityId,
+		            	county_id as countyId 
+		            from CMUSER.RMS_POLE
+		        </if>
+		        <if test="resourceType!=null and resourceType!='' and resourceType=='bs'">
+		            select 
+		            	int_id as resourceId,zh_label as resourceName,
+		            	'标石' as resourceType,'6' as resourceTypeId,
+		            	latitude as resourceLat,longitude as resourceLon,
+		            	maintain_company as maintainCompany,city_id as cityId,
+		            	county_id as countyId 
+		            from CMUSER.RMS_LANDMARK
+		        </if>
+		        <if test="resourceType!=null and resourceType!='' and resourceType=='jf'">
+		            select 
+		            	int_id as resourceId,zh_label as resourceName,
+		            	'机房' as resourceType,'7' as resourceTypeId,
+		            	latitude as resourceLat,longitude as resourceLon,
+		            	maintain_company as maintainCompany,city_id as cityId,
+		            	county_id as countyId 
+		            from CMUSER.RMS_EQUIPROOM
+		        </if>
+	         )
+	        <where>
+		        <if test="cityName!=null and cityName!='' ">
+		            and cityId =#{cityName}
+		        </if>
+		        <if test="resourceName!=null and resourceName!='' ">
+		            and resourceName like '%${resourceName}%'
+		        </if>
+	        </where>
+        )
+    </select>
+    
+    
+     <select id="findAllComboModels" parameterType="Map" resultMap="ComboTree">
+    	SELECT
+    		 a.id as id ,
+    		 a.organizationname as text 
+        FROM NETMAINTAINNEW.organization_main a
+        WHERE id in (
+			SELECT distinct(parentorganizationid) from NETMAINTAINNEW.organization_main where parentorganizationid is not null and cityId=#{cityId}
+		) and a.organizationnatureid=02
+    </select>
+    
+    
+    <select id="findAllDepartMent" parameterType="Map" resultMap="ComboTree">
+    	SELECT
+    		 a.id as id ,
+    		 a.organizationname as text 
+        FROM NETMAINTAINNEW.organization_main a
+        WHERE 
+        	cityId=#{cityId}
+         	and parentorganizationid in (
+				#{companyId},(
+				       SELECT  id FROM NETMAINTAINNEW.organization_main   WHERE   cityId=#{cityId} and  parentorganizationid=#{companyId}
+				)
+			)
+    </select>
+    
+    
+    <select id="findAllNmmpPersons" parameterType="Map" resultMap="NmmpPerson">
+    	SELECT rel.* FROM (
+    		SELECT 
+	        	  a.user_id as personId,
+             	  a.name as personName,
+             	  a.region_id as cityId,
+                  a.region_name as cityName,
+                  a.company_id as companyId,
+                  a.company as companyName,
+			      '0' as source,
+				  departMent_Id as departMentId,
+				  departMent as departMentName,
+			      rownum rn
+			FROM
+				NETMAINTAINNEW.EMPLOYEE a
+			WHERE a.STATUS='归档' 
+			<if test="personName!=null and personName!='' ">
+	            and name like '%${personName}%'
+	        </if>
+	        <if test="cityName!=null and cityName!='' ">
+	            and REGION_ID =#{cityName}
+	        </if>
+	        <if test="companyName!=null and companyName!='' ">
+	            and COMPANY_ID =#{companyName}
+	        </if>
+	        <if test="departMentId!=null and departMentId!='' ">
+	            and departMent_Id =#{departMentId}
+	        </if>
+    	) rel where rel.rn between #{start} and #{end}
+    </select>
+    
+    <select id="getTotalNmmpPerson" parameterType="Map" resultType="Long">
+    	SELECT COUNT(*) from (
+    		SELECT 
+	        	 user_id as personId,
+	        	 name as personName,
+	        	 region_id as cityId,
+	        	 region_name as cityName,
+			     company_id as companyId,
+			     company as companyName,
+			     departMent_Id as departMentId,
+			     departMent as departMentName,
+			     rownum rn
+			FROM
+				NETMAINTAINNEW.EMPLOYEE
+			WHERE STATUS='归档' 
+			<if test="personName!=null and personName!='' ">
+	            and name like '%${personName}%'
+	        </if>
+	        <if test="cityName!=null and cityName!='' ">
+	            and REGION_ID =#{cityName}
+	        </if>
+	        <if test="companyName!=null and companyName!='' and companyName!='all'">
+	            and COMPANY_ID =#{companyName}
+	        </if>
+	        <if test="departMentId!=null and departMentId!='' and departMentId!='all'">
+	            and departMent_Id =#{departMentId}
+	        </if>
+    	)
+    </select>
+    
+    <select id="findAllNmmpTasks" parameterType="Map" resultMap="NmmpTask">
+    	SELECT rel.* FROM (
+    		SELECT 
+				a.id as taskId,
+				a.plan_name as taskName,
+				a.res_type as taskType,
+				a.plan_starttime as startTime,
+				a.plan_endtime as endTime,
+				a.maintian_com_id as companyId,
+				a.maintain_com_name as companyName,
+				a.point_id as pointId,
+				a.point_name as pointName,
+				b.cityid as cityId,
+				rownum rn
+			FROM NETMAINTAINNEW.inspect_plan a ,NETMAINTAINNEW.organization_main b
+			WHERE a.point_id=b.id
+			<if test="taskName!=null and taskName!='' ">
+	            and plan_name like '%${taskName}%'
+	        </if>
+	        <if test="cityName!=null and cityName!='' ">
+	            and b.cityid =#{cityName}
+	        </if>
+	        <if test="taskType!=null and taskType!='' and taskType!='all'">
+	            and res_type =#{taskType}
+	        </if>
+	        <if test="startTime!=null and startTime!=''">
+	           <![CDATA[ and plan_starttime >=to_date(#{startTime,jdbcType=DATE},'yyyy-MM-dd hh24:mi:ss')]]>
+	        </if>
+	        <if test="endTime!=null and endTime!=''">
+	            <![CDATA[ and plan_endtime <=to_date(#{startTime,jdbcType=DATE},'yyyy-MM-dd hh24:mi:ss')]]>
+	        </if>
+	        ORDER BY taskId desc
+    	) rel where rel.rn between #{start} and #{end}
+    </select>
+    
+    <select id="getTotalNmmpTask" parameterType="Map" resultType="Long">
+    	SELECT COUNT(*) from (
+    		SELECT 
+				a.id as taskId,
+				a.plan_name as taskName,
+				a.res_type as taskType,
+				a.plan_starttime as startTime,
+				a.plan_endtime as endTime,
+				a.maintian_com_id as companyId,
+				a.maintain_com_name as companyName,
+				a.point_id as pointId,
+				a.point_name as pointName,
+				b.cityid as cityId
+			FROM NETMAINTAINNEW.inspect_plan a ,NETMAINTAINNEW.organization_main b
+			WHERE a.point_id=b.id
+			<if test="taskName!=null and taskName!='' ">
+	            and plan_name like '%${taskName}%'
+	        </if>
+	        <if test="cityName!=null and cityName!='' ">
+	            and b.cityid =#{cityName}
+	        </if>
+	        <if test="taskType!=null and taskType!='' and taskType!='all'">
+	            and res_type =#{taskType}
+	        </if>
+	        <if test="startTime!=null and startTime!=''">
+	           <![CDATA[ and plan_starttime >=to_date(#{startTime,jdbcType=DATE},'yyyy-MM-dd hh24:mi:ss')]]>
+	        </if>
+	        <if test="endTime!=null and endTime!=''">
+	            <![CDATA[ and plan_endtime <=to_date(#{startTime,jdbcType=DATE},'yyyy-MM-dd hh24:mi:ss')]]>
+	        </if>
+    	)
+    </select>
+    <select id="findXlPlanIds" parameterType="Map" resultMap="PlanID">
+    	select distinct(res_key) as planId from NETMAINTAINNEW.gis_position where userid='${personId}' order by res_key desc
+    </select>
+    
+    <select id="findQtPlanIds" parameterType="Map" resultMap="PlanID">
+    	select distinct(inspect_plan_id) as planId from  NETMAINTAINNEW.inspect_result where execute_man_id='${personId}' order by inspect_plan_id desc
+    </select>
+    
+    <select id="findAllNmmpSubTasks" parameterType="Map" resultMap="NmmpTask">
+    	SELECT rel.* FROM (
+    		SELECT 
+				a.id as taskId,
+				a.plan_name as taskName,
+				a.res_type as taskType,
+				a.plan_starttime as startTime,
+				a.plan_endtime as endTime,
+				a.maintian_com_id as companyId,
+				a.maintain_com_name as companyName,
+				a.point_id as pointId,
+				a.point_name as pointName,
+				rownum rn
+			FROM NETMAINTAINNEW.inspect_plan a
+			WHERE 1=1 
+			<if test="planIds!=null and planIds!='' ">
+	            and id in (${planIds})
+	        </if>
+	        <if test="startTime!=null and startTime!=''">
+	           <![CDATA[ and plan_starttime >=to_date(#{startTime,jdbcType=DATE},'yyyy-MM-dd hh24:mi:ss')]]>
+	        </if>
+	        <if test="endTime!=null and endTime!=''">
+	            <![CDATA[ and plan_endtime <=to_date(#{endTime,jdbcType=DATE},'yyyy-MM-dd hh24:mi:ss')]]>
+	        </if>
+	        ORDER BY taskId desc
+    	) rel where rel.rn between #{start} and #{end}
+    </select>
+    
+     <select id="findAllNmmpSubTasks2" parameterType="Map" resultMap="NmmpTask">
+    	SELECT rel.* FROM (
+    		SELECT 
+				a.id as taskId,
+				a.plan_name as taskName,
+				a.res_type as taskType,
+				a.plan_starttime as startTime,
+				a.plan_endtime as endTime,
+				a.maintian_com_id as companyId,
+				a.maintain_com_name as companyName,
+				a.point_id as pointId,
+				a.point_name as pointName,
+				rownum rn
+			FROM NETMAINTAINNEW.inspect_plan a
+			WHERE 1=1 
+			<if test="planIds!=null and planIds!='' ">
+	            and id in (${planIds})
+	        </if>
+	        <if test="startTime!=null and startTime!=''">
+	           <![CDATA[ and plan_starttime >=to_date(#{startTime,jdbcType=DATE},'yyyy-MM-dd hh24:mi:ss')]]>
+	        </if>
+	        <if test="endTime!=null and endTime!=''">
+	            <![CDATA[ and plan_starttime <=to_date(#{endTime,jdbcType=DATE},'yyyy-MM-dd hh24:mi:ss')]]>
+	        </if>
+	        ORDER BY taskId desc
+    	) rel where rel.rn between #{start} and #{end}
+    </select>
+    
+    <select id="findAllNmmpXlPersons" parameterType="Map" resultMap="NmmpPerson">
+    	SELECT rel.* FROM (
+	    	SELECT personId,personName,executeTime,rownum rn from (
+	    		SELECT 
+					  a.userid as personId,
+					  b.name as personName,
+					  min(a.report_time) as executeTime,
+					  to_char(record_time, 'yyyy-mm-dd')
+	  			FROM NETMAINTAINNEW.gis_position a, NETMAINTAINNEW.EMPLOYEE b
+			    WHERE a.userid = b.user_id
+			       <if test="taskId!=null and taskId!='' ">
+		              and res_key = #{taskId}
+		           </if>
+				GROUP BY userid, to_char(record_time, 'yyyy-mm-dd'), b.name
+				ORDER BY userid
+			)
+    	) rel where rel.rn between #{start} and #{end}
+    </select>
+    
+    <select id="getTotalNmmpXlPerson" parameterType="Map" resultType="Long">
+    	SELECT COUNT(*) from (
+    		SELECT 
+				  a.userid as personId,
+				  b.name as personName,
+				  min(a.report_time) as executeTime,
+				  to_char(record_time, 'yyyy-mm-dd')
+  			FROM NETMAINTAINNEW.gis_position a, NETMAINTAINNEW.EMPLOYEE b
+		    WHERE a.userid = b.user_id
+		       <if test="taskId!=null and taskId!='' ">
+	              and res_key = #{taskId}
+	           </if>
+			GROUP BY userid, to_char(record_time, 'yyyy-mm-dd'), b.name
+			ORDER BY userid
+			
+    	)
+    </select>
+    
+    <select id="findAllNmmpQtPersons" parameterType="Map" resultMap="NmmpPerson">
+    	SELECT rel.* FROM (
+	    	SELECT personId,personName,executeTime,rownum rn from (
+	    		SELECT 
+					  execute_man_id as personId,
+					  execute_man_name as personName,
+					  min(deal_time) as executeTime
+	  			FROM NETMAINTAINNEW.inspect_result
+			    WHERE 1=1
+			       <if test="taskId!=null and taskId!='' ">
+		              and inspect_plan_id = #{taskId}
+		           </if>
+				GROUP BY execute_man_id, execute_man_name
+				ORDER BY execute_man_id
+			)
+    	) rel where rel.rn between #{start} and #{end}
+    </select>
+    
+    <select id="getTotalNmmpQtPerson" parameterType="Map" resultType="Long">
+    	SELECT COUNT(*) from (
+    		SELECT 
+				  execute_man_id as personId,
+				  execute_man_name as personName,
+				  min(deal_time) as executeTime
+  			FROM NETMAINTAINNEW.inspect_result
+		    WHERE 1=1
+		       <if test="taskId!=null and taskId!='' ">
+	              and inspect_plan_id = #{taskId}
+	           </if>
+			GROUP BY execute_man_id, execute_man_name
+			ORDER BY execute_man_id
+    	)
+    </select>
+    
+    
+    
+    <select id="findAllXlTaskPoints" parameterType="Map" resultMap="TaskPoint">
+    	SELECT
+    		point_id as pointId,
+    		point_name as pointName,
+    		plan_id as taskId,
+    		longtidude as pointLng,
+    		latitude as pointLat,
+    		trans_id as transId,
+    		trans_name as transName,
+    		pass as passStatus
+    	FROM
+    		 NETMAINTAINNEW.inspect_transtask_refine
+    	WHERE 1=1 
+    	<if test="taskId!=null and taskId!='' ">
+	          and plan_id = #{taskId}
+	    </if>
+	    ORDER BY point_id desc
+    </select>
+    
+    <select id="findAllXunJianTaskPoints" parameterType="Map" resultType="Map">
+    	SELECT t.longit,
+    	 	   t.latit
+  		FROM renwuluxian t
+ 		WHERE t.parent_id = #{wanchengjinduId} order by t.finish_date asc
+    </select>
+    
+    <select id="findAllQtTaskPoints" parameterType="Map" resultMap="TaskPoint">
+    	SELECT
+    		res_id as pointId,
+    		res_name as pointName,
+    		plan_id as taskId,
+    		longitude as pointLng,
+    		latitude as pointLat
+    	FROM
+    		 NETMAINTAINNEW.inspect_plan_detail
+    	WHERE 1=1 
+    	<if test="taskId!=null and taskId!='' ">
+	          and plan_id = #{taskId}
+	    </if>
+	    ORDER BY res_id desc
+    </select>
+    
+    <select id="findAllXlExeTaskPoints" parameterType="Map" resultMap="TaskPoint">
+    	SELECT
+    		a.id as pointId,
+    		'执行点' as pointName,
+    		res_key as taskId,
+    		longitude as pointLng,
+    		latitude as pointLat,
+    		userid as exePersonId,
+    		b.name as exePersonName,
+    		record_time as exeStartTime
+    	FROM
+    		 NETMAINTAINNEW.gis_position a,NETMAINTAINNEW.employee b
+    	WHERE a.userid=b.user_id and a.id in(
+    		SELECT mid FROM (
+				 SELECT 
+					 max(id) as mid,
+					 to_char(record_time, 'yyyy-MM-dd HH24:mi') 
+				 FROM NETMAINTAINNEW.gis_position
+				 WHERE 1=1 
+					 <if test="taskId!=null and taskId!='' ">
+				          and res_key = #{taskId}
+				    </if>
+				    <if test="personId!=null and personId!='' ">
+				          and userid = #{personId}
+				    </if>
+				    <if test="qiandaoTime!=null and qiandaoTime!=''">
+			        <![CDATA[ and record_time>=to_date(#{qiandaoTime,jdbcType=DATE},'yyyy-MM-dd hh24:mi:ss')]]>
+			        <![CDATA[ and record_time<=to_date(#{qiandaoTimeEnd,jdbcType=DATE},'yyyy-MM-dd hh24:mi:ss')]]>
+			        </if>
+			      
+				    
+				    
+				 GROUP BY to_char(record_time, 'yyyy-MM-dd HH24:mi')
+				 ORDER BY to_char(record_time, 'yyyy-MM-dd HH24:mi') desc
+			 )
+    	)
+	    ORDER BY record_time desc
+    </select>
+    
+    <select id="findAllXlExeTaskPoints2" parameterType="Map" resultMap="TaskPoint">
+    	select id as pointId,
+        '执行点' as pointName,
+        plan_id as taskId,
+        longtidude as pointLng,
+        latitude as pointLat,
+        userids as exePersonId,
+        1 as exePersonName,
+        execute_date as exeStartTime from INSPECT_TRANSTASK_REFINE t 
+        WHERE latitude !='null' and longtidude  !='null'
+    	<if test="taskId!=null and taskId!='' ">
+	          and plan_id = #{taskId} 
+	    </if>
+	    <if test="personId!=null and personId!='' ">
+	          and userids = #{personId} 
+	    </if>
+	     order by id desc
+    </select>
+    
+    <select id="findAllQtExeTaskPoints" parameterType="Map" resultMap="TaskPoint">
+    	SELECT
+    		id as pointId,
+    		'执行点' as pointName,
+    		inspect_plan_id as taskId,
+    		longitudef as pointLng,
+    		latitudef as pointLat,
+    		execute_man_id as exePersonId,
+    		execute_man_name as exePersonName,
+    		deal_time as exeStartTime
+    	FROM
+    		 NETMAINTAINNEW.inspect_result
+    	WHERE latitudef !='null' and longitudef  !='null'
+    	<if test="taskId!=null and taskId!='' ">
+	          and inspect_plan_id = #{taskId}
+	    </if>
+	    <if test="personId!=null and personId!='' ">
+	          and execute_man_id = #{personId}
+	    </if>
+	    <if test="qiandaoTime!=null and qiandaoTime!=''">
+           <![CDATA[ and to_date(deal_time,'yyyy-MM-dd hh24:mi:ss')>=to_date(#{qiandaoTime,jdbcType=DATE},'yyyy-MM-dd hh24:mi:ss')]]>
+           <![CDATA[ and to_date(deal_time,'yyyy-MM-dd hh24:mi:ss')>=to_date(#{qiandaoTime,jdbcType=DATE},'yyyy-MM-dd hh24:mi:ss')]]>
+        </if>
+       
+	    ORDER BY deal_time desc
+    </select>
+    
+    <select id="findAllQtExeTaskPoints2" parameterType="Map" resultMap="TaskPoint">
+    	select 
+    	id as pointId,
+        '执行点' as pointName,
+        plan_id as taskId,
+        longitude as pointLng,
+        latitude as pointLat,
+    		1 as exePersonId,
+    		2 as exePersonName,
+    		 plan_begin_date as exeStartTime
+       from inspect_plan_detail 
+    	WHERE latitude !='null' and longitude  !='null'
+    	<if test="taskId!=null and taskId!='' ">
+	          and plan_id = #{taskId}
+	    </if>
+	    <if test="personId!=null and personId!='' ">
+	          and userid = #{personId}
+	    </if>
+	   
+	    
+    </select>
+    
+    <select id="findQiandaoPoints" parameterType="Map" resultMap="TaskPoint">
+       select id as pointId,t.longitude as pointLng,t.latitude as pointLat
+    ,case type when '0' then '签到' when '1' then '签退' end as pointName,qdtime as exeStartTime,qdtime as exeEndTime
+    ,'1' as taskId,'1' as exePersonId, 	'2' as exePersonName
+    from t_qd_detail t
+      WHERE longitude !='null' and latitude  !='null'
+	          and userid = #{personId}
+           and qddate= #{qiandaoTime}
+       
+    </select>
+</mapper> 
